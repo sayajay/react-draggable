@@ -1,10 +1,9 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('react-dom'), require('react')) :
-	typeof define === 'function' && define.amd ? define(['react-dom', 'react'], factory) :
-	(global.ReactDraggable = factory(global.ReactDOM,global.React));
-}(this, (function (ReactDOM,React) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('react')) :
+	typeof define === 'function' && define.amd ? define(['react'], factory) :
+	(global.ReactDraggable = factory(global.React));
+}(this, (function (React) { 'use strict';
 
-	ReactDOM = ReactDOM && ReactDOM.hasOwnProperty('default') ? ReactDOM['default'] : ReactDOM;
 	React = React && React.hasOwnProperty('default') ? React['default'] : React;
 
 	function createCommonjsModule(fn, module) {
@@ -1297,7 +1296,7 @@
 	  var bounds = draggable.props.bounds;
 
 	  bounds = typeof bounds === 'string' ? bounds : cloneBounds(bounds);
-	  var node = findDOMNode(draggable);
+	  var node = getDOMNode(draggable);
 
 	  if (typeof bounds === 'string') {
 	    var ownerDocument = node.ownerDocument;
@@ -1352,7 +1351,7 @@
 	function getControlPosition(e /*: MouseTouchEvent*/, touchIdentifier /*: ?number*/, draggableCore /*: DraggableCore*/) /*: ?ControlPosition*/ {
 	  var touchObj = typeof touchIdentifier === 'number' ? getTouch(e, touchIdentifier) : null;
 	  if (typeof touchIdentifier === 'number' && !touchObj) return null; // not the right touch
-	  var node = findDOMNode(draggableCore);
+	  var node = getDOMNode(draggableCore);
 	  // User can provide an offsetParent if desired.
 	  var offsetParent = draggableCore.props.offsetParent || node.offsetParent || node.ownerDocument.body;
 	  return offsetXYFromParent(touchObj || e, offsetParent);
@@ -1362,7 +1361,7 @@
 	function createCoreData(draggable /*: DraggableCore*/, x /*: number*/, y /*: number*/) /*: DraggableData*/ {
 	  var state = draggable.state;
 	  var isStart = !isNum(state.lastX);
-	  var node = findDOMNode(draggable);
+	  var node = getDOMNode(draggable);
 
 	  if (isStart) {
 	    // If this is our first move, use the x and y as last coords.
@@ -1406,8 +1405,8 @@
 	  };
 	}
 
-	function findDOMNode(draggable /*: Draggable | DraggableCore*/) /*: HTMLElement*/ {
-	  var node = ReactDOM.findDOMNode(draggable);
+	function getDOMNode(draggable /*: Draggable | DraggableCore*/) /*: HTMLElement*/ {
+	  var node = draggable.getDOMNode();
 	  if (!node) {
 	    throw new Error('<DraggableCore>: Unmounted during event!');
 	  }
@@ -1512,7 +1511,7 @@
 	      if (!_this.props.allowAnyClick && typeof e.button === 'number' && e.button !== 0) return false;
 
 	      // Get nodes. Be sure to grab relative document (could be iframed)
-	      var thisNode = _this.rootNode; // ReactDOM.findDOMNode(this);
+	      var thisNode = _this.rootNode;
 	      if (!thisNode || !thisNode.ownerDocument || !thisNode.ownerDocument.body) {
 	        throw new Error('<DraggableCore> not mounted on DragStart!');
 	      }
@@ -1625,7 +1624,7 @@
 
 	      var coreEvent = createCoreData(_this, x, y);
 
-	      var thisNode = _this.rootNode; // ReactDOM.findDOMNode(this);
+	      var thisNode = _this.rootNode;
 	      if (thisNode) {
 	        // Remove user-select hack
 	        if (_this.props.enableUserSelectHack) removeUserSelectStyles(thisNode.ownerDocument);
@@ -1676,7 +1675,7 @@
 	    value: function componentWillUnmount() {
 	      // Remove any leftover event handlers. Remove both touch and mouse handlers in case
 	      // some browser quirk caused a touch event to fire during a mouse move, or vice versa.
-	      var thisNode = this.rootNode; // ReactDOM.findDOMNode(this);
+	      var thisNode = this.rootNode;
 	      if (thisNode) {
 	        var ownerDocument = thisNode.ownerDocument;
 
@@ -1690,6 +1689,11 @@
 
 	    // Same as onMouseDown (start drag), but now consider this a touch device.
 
+	  }, {
+	    key: 'getDOMNode',
+	    value: function getDOMNode() {
+	      return this.rootNode;
+	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
@@ -2005,9 +2009,6 @@
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 	      // Check to see if the element passed is an instanceof SVGElement
-	      // console.log('yo node:', ReactDOM.findDOMNode(this));
-	      // console.log('yo node', this.rootNode);
-	      // if(typeof window.SVGElement !== 'undefined' && ReactDOM.findDOMNode(this) instanceof window.SVGElement) {
 	      if (typeof window.SVGElement !== 'undefined' && this.rootNode && this.rootNode instanceof window.SVGElement) {
 	        this.setState({ isElementSVG: true });
 	      }
@@ -2024,6 +2025,11 @@
 	    key: 'componentWillUnmount',
 	    value: function componentWillUnmount() {
 	      this.setState({ dragging: false }); // prevents invariant if unmounted while dragging
+	    }
+	  }, {
+	    key: 'getDOMNode',
+	    value: function getDOMNode() {
+	      return this.rootNode;
 	    }
 	  }, {
 	    key: 'render',
